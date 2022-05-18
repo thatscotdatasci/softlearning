@@ -1,0 +1,89 @@
+{
+  "Q_params": {
+    "class_name": "double_feedforward_Q_function",
+    "config": {
+      "hidden_layer_sizes": [
+        256,
+        256
+      ],
+      "observation_keys": null,
+      "preprocessors": null
+    }
+  },
+  "algorithm_params": {
+    "class_name": "SAC",
+    "config": {
+      "Q_lr": 0.0003,
+      "alpha_lr": 0.0003,
+      "batch_size": 256,
+      "discount": 0.99,
+      "epoch_length": 25000,
+      "eval_n_episodes": 1,
+      "eval_render_kwargs": {},
+      "min_pool_size": 1000,
+      "n_epochs": 120,
+      "n_train_repeat": 1,
+      "num_warmup_samples": 10000,
+      "policy_lr": 0.0003,
+      "reward_scale": 1.0,
+      "target_entropy": "auto",
+      "target_update_interval": 1,
+      "tau": 0.005,
+      "train_every_n_steps": 1
+    }
+  },
+  "environment_params": {
+    "evaluation": {
+      "domain": "HalfCheetah",
+      "kwargs": {},
+      "task": "v2",
+      "universe": "gym"
+    },
+    "training": {
+      "domain": "HalfCheetah",
+      "kwargs": {},
+      "task": "v2",
+      "universe": "gym"
+    }
+  },
+  "exploration_policy_params": {
+    "class_name": "ContinuousUniformPolicy",
+    "config": {
+      "observation_keys": null
+    }
+  },
+  "git_sha": "43dc0887a60101b40e4f56d5bcaad101eb95546d master",
+  "policy_params": {
+    "class_name": "FeedforwardGaussianPolicy",
+    "config": {
+      "hidden_layer_sizes": [
+        256,
+        256
+      ],
+      "observation_keys": null,
+      "preprocessors": null,
+      "squash": true
+    }
+  },
+  "replay_pool_params": {
+    "class_name": "SimpleReplayPool",
+    "config": {
+      "max_size": 1000000
+    }
+  },
+  "restore": null,
+  "run_params": {
+    "checkpoint_at_end": true,
+    "checkpoint_frequency": 10,
+    "checkpoint_replay_pool": false,
+    "host_name": "cpu-q-259",
+    "run_eagerly": null,
+    "seed": 9479
+  },
+  "sampler_params": {
+    "class_name": "SimpleSampler",
+    "config": {
+      "max_path_length": 1000
+    }
+  }
+}
