@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import pickle
 
+import numpy as np
 import pandas as pd
 
 from softlearning.environments.utils import get_environment_from_params
@@ -11,7 +12,11 @@ from softlearning import policies
 from softlearning.samplers import rollouts
 from softlearning.utils.tensorflow import set_gpu_memory_growth
 from softlearning.utils.video import save_video
-from .main import ExperimentRunner
+
+try:
+    from .main import ExperimentRunner
+except ImportError:
+    from main import ExperimentRunner
 
 
 DEFAULT_RENDER_KWARGS = {
@@ -31,6 +36,9 @@ def parse_args():
                         default='{}',
                         help="Kwargs for rollouts renderer.")
     parser.add_argument('--video-save-path',
+                        type=Path,
+                        default=None)
+    parser.add_argument('--rollout-save-path',
                         type=Path,
                         default=None)
 
@@ -94,7 +102,9 @@ def simulate_policy(checkpoint_path,
                     max_path_length,
                     render_kwargs,
                     video_save_path=None,
-                    evaluation_environment_params=None):
+                    evaluation_environment_params=None,
+                    rollout_save_path=None,
+                    ):
     checkpoint_path = os.path.abspath(checkpoint_path.rstrip('/'))
     variant, progress, metadata = load_variant_progress_metadata(
         checkpoint_path)
@@ -114,6 +124,26 @@ def simulate_policy(checkpoint_path,
             video_save_dir = os.path.expanduser('/tmp/simulate_policy/')
             video_save_path = os.path.join(video_save_dir, f'episode_{i}.mp4')
             save_video(path['images'], video_save_path, fps=fps)
+
+    if rollout_save_path:
+        rollout_dir = os.path.normpath(checkpoint_path).split(os.sep)[-1]
+        cp_rollout_save_path = os.path.join(rollout_save_path, rollout_dir)
+
+        if os.path.isdir(cp_rollout_save_path):
+            raise FileExistsError('Please delete existing rollout dir.')
+        else:
+            os.makedirs(cp_rollout_save_path)
+
+        for i, path in enumerate(paths):
+            observations = path["observations"]["observations"]
+            actions = path["actions"]
+            next_observations = path["next_observations"]["observations"]
+            rewards = path["rewards"]
+            terminals = path["terminals"]
+
+            arr = np.hstack((observations, actions, next_observations, rewards, terminals))
+
+            np.save(os.path.join(cp_rollout_save_path, f'rollout_{max_path_length}_{i}.npy'), arr)
 
     return paths
 
