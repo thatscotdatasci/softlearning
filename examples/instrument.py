@@ -385,7 +385,7 @@ def launch_example_cluster(example_module_name,
     return exec_cluster(
         config_file=config_file,
         cmd=cluster_command,
-        docker=False,
+        # docker=False,
         screen=screen,
         tmux=tmux,
         stop=stop,
