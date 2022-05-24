@@ -9,4 +9,4 @@ softlearning run_example_local examples.development \
 --domain HalfCheetah \
 --task v3 \
 --exp-name my-sac-experiment-1 \
---checkpoint-frequency 1000
+--checkpoint-frequency 10
