@@ -97,8 +97,8 @@ TOTAL_STEPS_PER_UNIVERSE_DOMAIN_TASK = {
             'v3': int(1e6),
         },
         'HalfCheetah': {
-            DEFAULT_KEY: int(3e6),
-            'v3': int(3e6),
+            DEFAULT_KEY: int(1e6),
+            'v3': int(1e6),
         },
         'Walker2d': {
             DEFAULT_KEY: int(3e6),
@@ -233,7 +233,7 @@ MAX_PATH_LENGTH_PER_UNIVERSE_DOMAIN_TASK = {
 EPOCH_LENGTH_PER_UNIVERSE_DOMAIN_TASK = {
     DEFAULT_KEY: 1000,
     'gym': {
-        DEFAULT_KEY: 25000,
+        DEFAULT_KEY: 10000,
         'Pendulum': {
             DEFAULT_KEY: 1000,
             'v0': 1000,

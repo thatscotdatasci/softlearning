@@ -41,8 +41,8 @@ options="run_example_local examples.development \
 --universe gym \
 --domain HalfCheetah \
 --task v2 \
---exp-name half_cheetah_v2_3M \
---checkpoint-frequency 10"
+--exp-name half_cheetah_v2_1M \
+--checkpoint-frequency 1"
 
 #! Work directory (i.e. where the job will run):
 workdir="$SLURM_SUBMIT_DIR"  # The value of SLURM_SUBMIT_DIR sets workdir to the directory
