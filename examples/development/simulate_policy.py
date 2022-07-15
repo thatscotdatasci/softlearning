@@ -20,7 +20,7 @@ except ImportError:
 
 
 DEFAULT_RENDER_KWARGS = {
-    'mode': 'human',
+    'mode': 'none',
 }
 
 
@@ -134,16 +134,20 @@ def simulate_policy(checkpoint_path,
         else:
             os.makedirs(cp_rollout_save_path)
 
+        path_list = []
         for i, path in enumerate(paths):
             observations = path["observations"]["observations"]
             actions = path["actions"]
             next_observations = path["next_observations"]["observations"]
             rewards = path["rewards"]
             terminals = path["terminals"]
+            policies = np.zeros((observations.shape[0], 1))
 
-            arr = np.hstack((observations, actions, next_observations, rewards, terminals))
+            arr = np.hstack((observations, actions, next_observations, rewards, terminals, policies))
+            
+            path_list.append(arr)
 
-            np.save(os.path.join(cp_rollout_save_path, f'rollout_{max_path_length}_{i}.npy'), arr)
+        np.save(os.path.join(cp_rollout_save_path, f'SAC-RT-xM-0-P0_{max_path_length*len(paths)}.npy'), np.vstack(path_list))
 
     return paths
 

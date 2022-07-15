@@ -10,8 +10,8 @@ import numpy as np
 # the first half, 1 for the second).
 ####################################################################################
 
-IND_ARRAY_DIR = "gym/HalfCheetah/v2/2022-05-17T18-38-36-half_cheetah_v2_3M/id=31acc_00000-seed=9479/paper_rep_rollouts/checkpoint_30"
-OUTPUT_DIR = "gym/HalfCheetah/v2/2022-05-17T18-38-36-half_cheetah_v2_3M/id=31acc_00000-seed=9479/paper_rep_rollouts/checkpoint_30"
+IND_ARRAY_DIR = "/home/ajc348/rds/hpc-work/dogo_results/softlearning/gym/HalfCheetah/v2/2022-05-24T20-41-24-half_cheetah_v2_1M/id=8341c_00000-seed=8238/SAC-PAP3/checkpoint_10"
+OUTPUT_DIR = "/home/ajc348/rds/hpc-work/dogo_results/softlearning/gym/HalfCheetah/v2/2022-05-24T20-41-24-half_cheetah_v2_1M/id=8341c_00000-seed=8238/SAC-PAP3/checkpoint_10"
 
 def main():
     # First ensure that the directory containing the individual arrays does exist
