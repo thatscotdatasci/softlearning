@@ -1,1 +1,0 @@
-id=31acc_00000-seed=9479_0_num_warmup_samples=10000,evaluation={'domain': 'HalfCheetah', 'task': 'v2', 'universe': 'gym', 'kwargs'_2022-05-17_18-38-43
