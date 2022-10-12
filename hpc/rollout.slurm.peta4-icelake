@@ -27,7 +27,7 @@ module load rhel8/default-icl              # REQUIRED - loads the basic environm
 
 #! Insert additional module load commands after this line if needed:
 module load miniconda/3
-source /home/ajc348/rds/hpc-work/softlearning/README.softlearning.activate
+source /home/ajc348/rds/hpc-work/softlearning/hpc/README.softlearning.activate
 
 #! Full path to application executable: 
 application=".venv/bin/python"
@@ -36,7 +36,7 @@ application=".venv/bin/python"
 options="-m examples.development.simulate_policy \
     /home/ajc348/rds/hpc-work/dogo_results/softlearning/gym/HalfCheetah/v2/2022-05-24T20-41-24-half_cheetah_v2_1M/id=8341c_00000-seed=8238/checkpoint_10 \
     --max-path-length 1000 \
-    --num-rollouts 1000 \
+    --num-rollouts 10 \
     --rollout-save-path rollout_test"
 
 #! Work directory (i.e. where the job will run):
