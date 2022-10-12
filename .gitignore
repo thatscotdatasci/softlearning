@@ -116,3 +116,8 @@ vendor/*
 .mujoco/
 .vscode/
 gym/*
+
+# HPC
+slurm_logs/
+slurm-*
+machine.file.*
