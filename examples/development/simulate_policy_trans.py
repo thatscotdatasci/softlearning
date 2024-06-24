@@ -19,6 +19,12 @@ except ImportError:
     from main import ExperimentRunner
 
 
+########################################################################
+# Rather than collecting transitions from X episodes, use this script to
+# explicitly collect Y transitions.
+########################################################################
+
+
 DEFAULT_RENDER_KWARGS = {
     'mode': 'none',
 }
@@ -29,15 +35,18 @@ def parse_args():
     parser.add_argument('checkpoint_path',
                         type=str,
                         help='Path to the checkpoint.')
-    parser.add_argument('--max-path-length', '-l', type=int, default=1000)
-    parser.add_argument('--num-rollouts', '-n', type=int, default=10)
+    parser.add_argument('--max-path-length',
+                        '-l',
+                        type=int,
+                        default=1000,
+                        help='Maximum episode length.')
+    parser.add_argument('--n_trans', '-t', type=int, help='Number of transitions to collect.')
+    parser.add_argument('--steps', '-s', type=str, help='Number of steps the SAC policy was trained for.')
+    parser.add_argument('--iteration', '-i', type=int, help='SAC policy iteration')
     parser.add_argument('--render-kwargs', '-r',
                         type=json.loads,
                         default='{}',
                         help="Kwargs for rollouts renderer.")
-    parser.add_argument('--video-save-path',
-                        type=Path,
-                        default=None)
     parser.add_argument('--rollout-save-path',
                         type=Path,
                         default=None)
@@ -98,12 +107,12 @@ def load_policy(checkpoint_dir, variant, environment):
 
 
 def simulate_policy(checkpoint_path,
-                    num_rollouts,
+                    n_trans,
+                    steps,
+                    iteration,
                     max_path_length,
                     render_kwargs,
-                    video_save_path=None,
-                    evaluation_environment_params=None,
-                    rollout_save_path=None,
+                    rollout_save_path,
                     ):
     checkpoint_path = os.path.abspath(checkpoint_path.rstrip('/'))
     variant, progress, metadata = load_variant_progress_metadata(
@@ -112,30 +121,30 @@ def simulate_policy(checkpoint_path,
     policy = load_policy(checkpoint_path, variant, environment)
     render_kwargs = {**DEFAULT_RENDER_KWARGS, **render_kwargs}
 
-    paths = rollouts(num_rollouts,
-                     environment,
-                     policy,
-                     path_length=max_path_length,
-                     render_kwargs=render_kwargs)
+    rollout_dir = os.path.normpath(checkpoint_path).split(os.sep)[-1]
+    cp_rollout_save_path = os.path.join(rollout_save_path, rollout_dir)
 
-    if video_save_path and render_kwargs.get('mode') == 'rgb_array':
-        fps = 1 // getattr(environment, 'dt', 1/30)
-        for i, path in enumerate(paths):
-            video_save_dir = os.path.expanduser('/tmp/simulate_policy/')
-            video_save_path = os.path.join(video_save_dir, f'episode_{i}.mp4')
-            save_video(path['images'], video_save_path, fps=fps)
+    if os.path.isdir(cp_rollout_save_path):
+        raise FileExistsError('Please delete existing rollout dir.')
+    else:
+        os.makedirs(cp_rollout_save_path)
 
-    if rollout_save_path:
-        rollout_dir = os.path.normpath(checkpoint_path).split(os.sep)[-1]
-        cp_rollout_save_path = os.path.join(rollout_save_path, rollout_dir)
+    # Save the model path that was used to create the data
+    with open(os.path.join(cp_rollout_save_path, f'sac_policy_model_path_P{iteration}.txt'), 'w') as f:
+        f.write(checkpoint_path)
 
-        if os.path.isdir(cp_rollout_save_path):
-            raise FileExistsError('Please delete existing rollout dir.')
-        else:
-            os.makedirs(cp_rollout_save_path)
+    t_count = 0
+    fin_arr = None
+    while t_count < n_trans:
+        paths = rollouts(
+            10,
+            environment,
+            policy,
+            path_length=max_path_length,
+            render_kwargs=render_kwargs
+        )
 
-        path_list = []
-        for i, path in enumerate(paths):
+        for _, path in enumerate(paths):
             observations = path["observations"]["observations"]
             actions = path["actions"]
             next_observations = path["next_observations"]["observations"]
@@ -144,12 +153,19 @@ def simulate_policy(checkpoint_path,
             policies = np.zeros((observations.shape[0], 1))
 
             arr = np.hstack((observations, actions, next_observations, rewards, terminals, policies))
-            
-            path_list.append(arr)
 
-        np.save(os.path.join(cp_rollout_save_path, f'SAC-RT-xM-0-P0_{max_path_length*len(paths)}.npy'), np.vstack(path_list))
+        if fin_arr is None:
+            fin_arr = arr
+        else:
+            fin_arr = np.vstack((fin_arr, arr))
 
-    return paths
+        if len(fin_arr) > n_trans:
+            fin_arr = fin_arr[:n_trans,:]
+
+        t_count = len(fin_arr)
+
+    assert len(fin_arr) == n_trans
+    np.save(os.path.join(cp_rollout_save_path, f'SAC-RT-{steps}M-{iteration}-P0_{n_trans}.npy'), fin_arr)
 
 
 if __name__ == '__main__':
